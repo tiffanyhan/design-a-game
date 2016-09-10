@@ -1,0 +1,63 @@
+ - what additional properties did you add to your models and why?
+
+ For the Game model, I added one additional property named
+ 'all_results'.  I added this property in order to store
+ the game history.  This is the information returned by
+ the api endpoint 'get_game_history'.  This endpoint shows the
+ history of all guesses made and the results of those guesses for
+ each game.  I made the 'all_results' property a StringProperty
+ instead of a JsonProperty, since it doesn't make sense to
+ query the information within the property.  Using StringProperty
+ is adequate for the purposes of storing and retrieving the
+ information.
+
+ For the Score model, I removed the original guesses property and
+ replaced it with an 'attempts_remaining' property.  The original
+ guesses property didn't make sense for the Hangman game, since
+ players of the Hangman game can make as many guesses as they want
+ without having their allowed number of guesses decremented, as
+ long as these guesses are correct.  Therefore, the 'attempts_remaining'
+ property refers to the number of remaining guesses the user still has
+ when the game is over.  This is a more accurate signifier of a
+ high score for this game.  Furthermore, the 'attempts_remaining'
+ property is presented in percentage form rather than whole number
+ form.  This provides some accountability for the fact that users
+ can specify the allowed number of attempts when creating a new game.
+
+ I also added a 'number_of_letters' property to the Score model.
+ This property is a good way to break ties after scores are first
+ ordered using the 'attempts_remaining' property.  This is because
+ the game becomes more challenging when there is a greater number
+ of letters in the target word, and vice versa.
+
+ For the User model, I added two properties.  First, I added a
+ 'wins' property.  This property represents the number of wins
+ a user has in percentage form.  This property was added to
+ enable ranking of users by performance.  The api endpoint
+ 'get_user_rankings' returns all users ranked by performance.
+ In this case, users are first ranked using the 'wins' property.
+
+ To break any potential ties, users are then ranked according
+ to the 'avg_attempts_remaining' property.  This is the second
+ property I added to the User model.  This property is a whole
+ number.  It represents the average over all games of the
+ number of attempts remaining when the game is finished.
+
+ - what were some trade-offs or struggles you faced when implementing
+ the new game logic?
+
+One of the trade-offs I made was to make endpoint responses
+more binary in nature.  To do this, I had to sacrifice the
+human-readability of the responses.  For instance, I removed the
+'message' property of the GameForm, and replaced it with a
+'hit' BooleanProperty.  This was an acceptable trade-off to me,
+because it seemed more appropriate to have more neutral values
+which then could be used by any front-end client who could choose
+their own messages.  Similarly, instead of saying something like
+'too high' or 'too low', or designing a visual representation of a partial
+reveal of the word over time, I opted to present that information
+through string indices.  Again, this is a more neutral way of presenting
+the data, which any front-end client can then use to design their
+interface however they want.  For instance, if someone finds the
+'hangman' imagery distateful, they can design another way to
+visually represent the partial reveal of the word over time.
