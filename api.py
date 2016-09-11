@@ -13,6 +13,8 @@ from models import StringMessageForm, NewGameForm, GameForm, MakeMoveForm,\
     ScoreForms, GameForms, GuessResultForms, UserRankForms
 from utils import get_by_urlsafe
 
+from copy import deepcopy
+
 import endpoints
 import json
 
@@ -122,7 +124,8 @@ class HangmanApi(remote.Service):
             result['hit'] = True
             letter_pos = [pos for pos, letter in enumerate(game.word)
                           if letter == formatted_guess]
-            result['letter_pos'] = letter_pos
+            for x in letter_pos:
+                game.reveal[x] = formatted_guess
         # if they user guesses a single letter, and they're wrong
         if formatted_guess not in game.word:
             game.attempts_remaining -= 1
@@ -134,6 +137,7 @@ class HangmanApi(remote.Service):
 
         # add guess results to game history, committ changes,
         # return gameform representation of game state
+        result['word'] = deepcopy(game.reveal)
         game.all_results.append(json.dumps(result))
         game.put()
         return game.to_form(result)

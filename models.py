@@ -15,8 +15,7 @@ import json
 ALLOWED_NUM_OF_LETTERS = [5, 6, 7]
 
 FIVE_LETTER_WORDS = ['music', 'night', 'house', 'earth', 'paper']
-RESERVE = ['family', 'mother', 'father', 'school', 'friend']
-SIX_LETTER_WORDS = ['school']
+SIX_LETTER_WORDS = ['family', 'mother', 'father', 'school', 'friend']
 SEVEN_LETTER_WORDS = ['sparkle', 'firefly', 'freckle', 'stellar', 'acrobat']
 
 
@@ -45,6 +44,7 @@ class Game(ndb.Model):
     game_over = ndb.BooleanProperty(required=True, default=False)
     user = ndb.KeyProperty(required=True, kind='User')
     all_results = ndb.StringProperty(repeated=True)
+    reveal = ndb.StringProperty(repeated=True)
 
     @classmethod
     def new_game(cls, user, number_of_letters, attempts):
@@ -62,11 +62,18 @@ class Game(ndb.Model):
         else:
             words = SEVEN_LETTER_WORDS
 
+        word = random.choice(words)
+
+        reveal = []
+        for x in range(0, number_of_letters):
+            reveal.append('')
+
         game = Game(user=user,
                     word=random.choice(words),
                     attempts_allowed=attempts,
                     attempts_remaining=attempts,
-                    game_over=False)
+                    game_over=False,
+                    reveal=reveal)
         game.put()
         return game
 
@@ -77,9 +84,12 @@ class Game(ndb.Model):
         form.user_name = self.user.get().name
         form.attempts_remaining = self.attempts_remaining
         form.game_over = self.game_over
-        form.number_of_letters = len(self.word)
-        # if there are guess results, return a form representation of
-        # that too
+
+        # when the user first creates a new game, show all letters of the
+        # word as blank spaces
+        if not result:
+            form.word = self.reveal
+        # after the user makes a guess, give them feedback
         if result:
             result_form = Game.result_to_form(result)
             form.result = result_form
@@ -92,17 +102,22 @@ class Game(ndb.Model):
         result_form = GuessResultForm()
         result_form.guess = result['guess']
         result_form.hit = result['hit']
-        # only set the letter_position attribute if relevant
-        if result.get('letter_pos'):
-            result_form.letter_position = result['letter_pos']
+        result_form.word = result['word']
 
         return result_form
+
+    def show_reveal(self):
+        """When a game ends, reveal the word"""
+        for x in range(0, len(self.word)):
+            self.reveal[x] = self.word[x]
 
     def end_game(self, won=False):
         """Ends the game - if won is True, the player won.
         if won is False, the player lost.  Updates the scoreboard
         and user rankings."""
         self.game_over = True
+        self.show_reveal()
+
         self.put()
         # convert attempts_remaining to a ratio presented as a decimal value
         attempts_remaining = self.attempts_remaining / self.attempts_allowed
@@ -154,9 +169,9 @@ class Score(ndb.Model):
 
 class GuessResultForm(messages.Message):
     """GuessResultForm to be used for outbound game state information"""
-    guess = messages.StringField(1, required=True)
-    hit = messages.BooleanField(2, required=True)
-    letter_position = messages.IntegerField(3, repeated=True)
+    guess = messages.StringField(1)
+    hit = messages.BooleanField(2)
+    word = messages.StringField(3, repeated=True)
 
 
 class GuessResultForms(messages.Message):
@@ -170,8 +185,8 @@ class GameForm(messages.Message):
     attempts_remaining = messages.IntegerField(2, required=True)
     game_over = messages.BooleanField(3, required=True)
     user_name = messages.StringField(5, required=True)
-    number_of_letters = messages.IntegerField(6, required=True)
     result = messages.MessageField(GuessResultForm, 7)
+    word = messages.StringField(8, repeated=True)
 
 
 class GameForms(messages.Message):
