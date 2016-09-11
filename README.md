@@ -14,11 +14,12 @@ are 5, 6, or 7). The allowed number of attempts only decreases when you make
 a wrong guess. 'Guesses' are sent to the `make_move` endpoint which will reply with the
 following information:
 
+ - 'word'
+    - before any guess is made, the initial state of 'word' is all blank spaces
+    - letters replace the appropriate blank space(s) when a guess is correct
  - 'hit' (true if the guess was correct)
- - 'letter_position' (given if the guess was a letter and the guess was correct)
-    - this gives the index(es) that the letter occupies within the target word
-    - index(es) assume a starting value of 0, not 1.
- - 'game over' (if the maximum number of attempts is reached).
+ - 'attempts_remaining'
+ - 'game over' (if the maximum number of attempts is reached, or the correct word is guessed).
 
 Many different Hangman games can be played by many different Users at any
 given time. Each game can be retrieved or played by using the path parameter

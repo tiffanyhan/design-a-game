@@ -1,4 +1,4 @@
- - what additional properties did you add to your models and why?
+ what additional properties did you add to your models and why?
 
  For the Game model, I added one additional property named
  'all_results'.  I added this property in order to store
@@ -46,18 +46,14 @@
  - what were some trade-offs or struggles you faced when implementing
  the new game logic?
 
-One of the trade-offs I made was to make endpoint responses
-more binary in nature.  To do this, I had to sacrifice the
-human-readability of the responses.  For instance, I removed the
-'message' property of the GameForm, and replaced it with a
-'hit' BooleanProperty.  This was an acceptable trade-off to me,
-because it seemed more appropriate to have more neutral values
-which then could be used by any front-end client who could choose
-their own messages.  Similarly, instead of saying something like
-'too high' or 'too low', or designing a visual representation of a partial
-reveal of the word over time, I opted to present that information
-through string indices.  Again, this is a more neutral way of presenting
-the data, which any front-end client can then use to design their
-interface however they want.  For instance, if someone finds the
-'hangman' imagery distateful, they can design another way to
-visually represent the partial reveal of the word over time.
+ One struggle I faced was how to format my endpoint responses.
+ Since the api is designed to be used with any front-end client,
+ I wanted my responses to be scalable and sustainable over time.
+ Therefore, I opted not to include a 'message' property within
+ GameForm, since string messages are more susceptible to small changes
+ which can introduce bugs.  For instance, a small change in punctuation
+ can force the front-end client to break if it is only relying on a
+ message property for game state information.  Therefore, I used
+ a simple 'hit' BooleanProperty, which tells the user whether
+ their guess was a hit or miss.  Using this information, the front-end
+ client can then design their own messages to send to the end user.
