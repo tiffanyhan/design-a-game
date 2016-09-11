@@ -63,7 +63,7 @@ class Game(ndb.Model):
             words = SEVEN_LETTER_WORDS
 
         word = random.choice(words)
-
+        # construct the initial blank state of reveal
         reveal = []
         for x in range(0, number_of_letters):
             reveal.append('')
@@ -84,12 +84,12 @@ class Game(ndb.Model):
         form.user_name = self.user.get().name
         form.attempts_remaining = self.attempts_remaining
         form.game_over = self.game_over
-
-        # when the user first creates a new game, show all letters of the
-        # word as blank spaces
+        # when the user first creates a new game, show the initial
+        # blank state of reveal in its own field
         if not result:
             form.word = self.reveal
-        # after the user makes a guess, give them feedback
+        # after the user makes a guess, give them feedback.
+        # move the reveal inside the results field
         if result:
             result_form = Game.result_to_form(result)
             form.result = result_form
@@ -113,8 +113,9 @@ class Game(ndb.Model):
 
     def end_game(self, won=False):
         """Ends the game - if won is True, the player won.
-        if won is False, the player lost.  Updates the scoreboard
-        and user rankings."""
+        if won is False, the player lost.  Adds a new score to the
+        scoreboard.  Updates the user's wins and avg_attempts_remaining
+        attributes, for ranking purposes."""
         self.game_over = True
         self.show_reveal()
 
@@ -126,10 +127,9 @@ class Game(ndb.Model):
                       number_of_letters=len(self.word))
 
         user = self.user.get()
-        # get all games already played and all games already won
+        # get all games already played/won, and update the values accordingly
         prev_games_played = Score.query(Score.user == user.key)
         prev_games_won = prev_games_played.filter(Score.won == True)  # noqa
-        # add one to games played, add one to games won if they won
         games_played = prev_games_played.count() + 1
         games_won = prev_games_won.count()
         if won:
@@ -138,10 +138,9 @@ class Game(ndb.Model):
         user.wins = games_won / games_played
 
         all_attempts_remaining = []
-        # add all previous attempts_remaining to all_attempts_remaining
+        # add the current and all previous attempts_remaining to a list
         for game in prev_games_played:
             all_attempts_remaining.append(game.attempts_remaining)
-        # add current attempts_remaining to all_attempts_remaining
         all_attempts_remaining.append(attempts_remaining)
         # update the average number of attempts_remaining over all games.
         user.avg_attempts_remaining = \
@@ -160,7 +159,6 @@ class Score(ndb.Model):
     number_of_letters = ndb.IntegerProperty(required=True)
 
     def to_form(self):
-        # define attempts_remaining as a floating point number
         return ScoreForm(user_name=self.user.get().name, won=self.won,
                          date=str(self.date),
                          number_of_letters=self.number_of_letters,
