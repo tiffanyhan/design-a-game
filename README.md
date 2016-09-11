@@ -9,7 +9,8 @@
 ##Game Description:
 Hangman is a word guessing game. Each game begins with a random word, and a maximum number of
 'attempts'.  The number of letters in the target word and the maximum number of attempts can
-both be specified by the user. The allowed number of attempts only decreases when you make
+both be specified by the user (as of now, the allowed number of letters in the target word
+are 5, 6, or 7). The allowed number of attempts only decreases when you make
 a wrong guess. 'Guesses' are sent to the `make_move` endpoint which will reply with the
 following information:
 
@@ -19,7 +20,7 @@ following information:
     - index(es) assume a starting value of 0, not 1.
  - 'game over' (if the maximum number of attempts is reached).
 
-Many different Guess a Number games can be played by many different Users at any
+Many different Hangman games can be played by many different Users at any
 given time. Each game can be retrieved or played by using the path parameter
 `urlsafe_game_key`.
 
@@ -27,14 +28,14 @@ given time. Each game can be retrieved or played by using the path parameter
 Individual games are ranked according to its score's attempts_remaining attribute.
 Note that this is different from a game's attempts_remaining attribute.  The
 attribute for a game is a whole number that decrements during the course of the
-game.  The attribute for a score is a percentage calculated after the game
+game.  The attribute for a score is a decimal value calculated after the game
 is over, using the game's final attempts_remaining value divided by the number of
 attempts_allowed.  Ties are broken according to the number of letters of the
 target word.  A longer word corresponds to a higher score, while a shorter word
 corresponds to a lower score.
 
 Users are ranked according to their number of wins relative to the total number of games
-they have played (calculated as a percentage).  Ties are broken according to a user's
+they have played (calculated as a decimal value).  Ties are broken according to a user's
 average_attempts_remaining attribute.  A higher number of attempts remaining throughout
 all games played corersponds to a higher score, while a lower number of attempts
 remaining throughout all games played corresponds to a lower score.
@@ -114,7 +115,7 @@ remaining throughout all games played corresponds to a lower score.
 
  - **cancel_game**
     - Path: 'cancel/game/{urlsafe_game_key}'
-    - Method: POST
+    - Method: DELETE
     - Parameters: urlsafe_game_key
     - Returns: StringMessageForm
     - Description: Cancels an in progress game.

@@ -13,7 +13,6 @@ from models import StringMessageForm, NewGameForm, GameForm, MakeMoveForm,\
     ScoreForms, GameForms, GuessResultForms, UserRankForms
 from utils import get_by_urlsafe
 
-import logging
 import endpoints
 import json
 
@@ -61,9 +60,8 @@ class HangmanApi(remote.Service):
         try:
             game = Game.new_game(user.key, request.number_of_letters,
                                  request.attempts)
-        except ValueError:
-            raise endpoints.BadRequestException(
-              'Number of letters can only be 5, 6, or 7!')
+        except ValueError as e:
+            raise endpoints.BadRequestException(e)
 
         # Use a task queue to update the average attempts remaining.
         # This operation is not needed to complete the creation of a new game
@@ -91,9 +89,6 @@ class HangmanApi(remote.Service):
                       http_method='PUT')
     def make_move(self, request):
         """Makes a move. Returns a game state with message."""
-        # TODO: make it so that a user can only input alphabet letters,
-        #and inputting any other characters returns an error
-
         # make sure the game is still on
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
@@ -101,6 +96,10 @@ class HangmanApi(remote.Service):
         # format the guess correctly before using it for matching
         formatted_guess = request.guess.strip().lower()
 
+        # make sure the guess does not contain any special characters
+        if not formatted_guess.isalpha():
+            raise endpoints.BadRequestException(
+                'Your guess can only contain alphabet letters.')
         # make sure the guess is of an appropriate length
         if len(formatted_guess) not in (1, len(game.word)):
             raise endpoints.BadRequestException(
@@ -191,7 +190,7 @@ class HangmanApi(remote.Service):
                       response_message=StringMessageForm,
                       path='cancel/game/{urlsafe_game_key}',
                       name='cancel_game',
-                      http_method='POST')
+                      http_method='DELETE')
     def cancel_game(self, request):
         """Cancels in progress games"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)

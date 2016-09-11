@@ -15,7 +15,8 @@ import json
 ALLOWED_NUM_OF_LETTERS = [5, 6, 7]
 
 FIVE_LETTER_WORDS = ['music', 'night', 'house', 'earth', 'paper']
-SIX_LETTER_WORDS = ['family', 'mother', 'father', 'school', 'friend']
+RESERVE = ['family', 'mother', 'father', 'school', 'friend']
+SIX_LETTER_WORDS = ['school']
 SEVEN_LETTER_WORDS = ['sparkle', 'firefly', 'freckle', 'stellar', 'acrobat']
 
 
@@ -48,8 +49,11 @@ class Game(ndb.Model):
     @classmethod
     def new_game(cls, user, number_of_letters, attempts):
         """Creates and returns a new game"""
+        if not attempts > 0:
+            raise ValueError('Number of attempts must be a positive number.')
         if number_of_letters not in ALLOWED_NUM_OF_LETTERS:
             raise ValueError('Number of letters can only be 5, 6, or 7!')
+
         # choose a random word based on the number of letters specified
         if number_of_letters == 5:
             words = FIVE_LETTER_WORDS
@@ -96,29 +100,39 @@ class Game(ndb.Model):
 
     def end_game(self, won=False):
         """Ends the game - if won is True, the player won.
-        if won is False, the player lost."""
+        if won is False, the player lost.  Updates the scoreboard
+        and user rankings."""
         self.game_over = True
         self.put()
-        # Add the game to the score 'board'
+        # convert attempts_remaining to a ratio presented as a decimal value
         attempts_remaining = self.attempts_remaining / self.attempts_allowed
         score = Score(user=self.user, date=date.today(), won=won,
                       attempts_remaining=attempts_remaining,
                       number_of_letters=len(self.word))
-        score.put()
-        time.sleep(0.1)
 
         user = self.user.get()
-        # update user's wins
-        games_played = Score.query(Score.user == user.key)
-        games_won = games_played.filter(Score.won == True)  # noqa
-        user.wins = games_won.count() / games_played.count()
-        # update user's average attempts remaining
-        if not user.avg_attempts_remaining:
-            user.avg_attempts_remaining = 0
-        user.avg_attempts_remaining = \
-            (user.avg_attempts_remaining + self.attempts_remaining) / \
-            games_played.count()
+        # get all games already played and all games already won
+        prev_games_played = Score.query(Score.user == user.key)
+        prev_games_won = prev_games_played.filter(Score.won == True)  # noqa
+        # add one to games played, add one to games won if they won
+        games_played = prev_games_played.count() + 1
+        games_won = prev_games_won.count()
+        if won:
+            games_won = prev_games_won.count() + 1
+        # update the user's ratio of wins as a decimal value
+        user.wins = games_won / games_played
 
+        all_attempts_remaining = []
+        # add all previous attempts_remaining to all_attempts_remaining
+        for game in prev_games_played:
+            all_attempts_remaining.append(game.attempts_remaining)
+        # add current attempts_remaining to all_attempts_remaining
+        all_attempts_remaining.append(attempts_remaining)
+        # update the average number of attempts_remaining over all games.
+        user.avg_attempts_remaining = \
+            sum(all_attempts_remaining) / games_played
+
+        score.put()
         user.put()
 
 

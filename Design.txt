@@ -20,7 +20,7 @@
  property refers to the number of remaining guesses the user still has
  when the game is over.  This is a more accurate signifier of a
  high score for this game.  Furthermore, the 'attempts_remaining'
- property is presented in percentage form rather than whole number
+ property is presented in decimal form rather than whole number
  form.  This provides some accountability for the fact that users
  can specify the allowed number of attempts when creating a new game.
 
@@ -32,16 +32,16 @@
 
  For the User model, I added two properties.  First, I added a
  'wins' property.  This property represents the number of wins
- a user has in percentage form.  This property was added to
+ a user has in decimal form.  This property was added to
  enable ranking of users by performance.  The api endpoint
  'get_user_rankings' returns all users ranked by performance.
  In this case, users are first ranked using the 'wins' property.
 
  To break any potential ties, users are then ranked according
  to the 'avg_attempts_remaining' property.  This is the second
- property I added to the User model.  This property is a whole
- number.  It represents the average over all games of the
- number of attempts remaining when the game is finished.
+ property I added to the User model.  This property represents
+ in decimal value the average over all games of the number of
+ attempts remaining when the game is finished.
 
  - what were some trade-offs or struggles you faced when implementing
  the new game logic?
