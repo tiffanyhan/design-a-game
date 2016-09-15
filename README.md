@@ -1,10 +1,21 @@
-## Set-Up Instructions:
+#PROJECT DESCRIPTION:
+This project is a back-end API for the word guessing game, Hangman.  Any front-end client may use the API to construct a UI of their own version of the game.  The API will respond with the full game state in JSON.
+
+## Test the API with Google API Explorer:
+ - https://apis-explorer.appspot.com/apis-explorer/?base=https://skeleton-game.appspot.com/_ah/api
+
+## Local Set-Up Instructions:
 1.  Make sure you have the Python Google App Engine SDK installed and configured
  on your machine.
 2.  Update the value of application in app.yaml to a app ID you have registered
  in the App Engine admin console and would like to use to host your instance of this sample.
 3.  Run the app with the devserver using dev_appserver.py DIR, and ensure it's
  running by visiting the API Explorer - by default localhost:8080/_ah/api/explorer.
+
+ ## Quickstart:
+  - create a new user using the endpoint 'create_user'
+  - create a new game using the endpoint 'new_game'.  copy the 'urlsafe_key' returned.
+  - make a guess using the endpoint 'make_move'.  you will need to input the 'urlsafe_key' you copied previously in the required field.
 
 ##Game Description:
 Hangman is a word guessing game. Each game begins with a random word, and a maximum number of
