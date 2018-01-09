@@ -1,6 +1,3 @@
-#PROJECT DESCRIPTION:
-This project is a back-end API for the word guessing game, Hangman.  Any front-end client may use the API to construct a UI of their own version of the game.  The API will respond with the full game state in JSON.
-
 ## Test the API with Google API Explorer:
  - https://apis-explorer.appspot.com/apis-explorer/?base=https://skeleton-game.appspot.com/_ah/api
 
