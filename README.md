@@ -168,7 +168,7 @@ remaining throughout all games played corresponds to a lower score.
  - **Score**
     - Records completed games. Associated with Users model via KeyProperty.
 
-##Forms Included:
+## Forms Included:
  - **GameForm**
     - Representation of a Game's state (urlsafe_key, attempts_remaining,
     game_over flag, message, user_name).
