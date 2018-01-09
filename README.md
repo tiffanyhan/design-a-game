@@ -14,7 +14,7 @@
   - create a new game using the endpoint 'new_game'.  copy the 'urlsafe_key' returned.
   - make a guess using the endpoint 'make_move'.  you will need to input the 'urlsafe_key' you copied previously in the required field.
 
-##Game Description:
+## Game Description:
 Hangman is a word guessing game. Each game begins with a random word, and a maximum number of
 'attempts'.  The number of letters in the target word and the maximum number of attempts can
 both be specified by the user (as of now, the allowed number of letters in the target word
@@ -33,7 +33,6 @@ Many different Hangman games can be played by many different Users at any
 given time. Each game can be retrieved or played by using the path parameter
 `urlsafe_game_key`.
 
-##Scoring Information:
 Individual games are ranked according to its score's attempts_remaining attribute.
 Note that this is different from a game's attempts_remaining attribute.  The
 attribute for a game is a whole number that decrements during the course of the
@@ -49,7 +48,7 @@ average_attempts_remaining attribute.  A higher number of attempts remaining thr
 all games played corersponds to a higher score, while a lower number of attempts
 remaining throughout all games played corresponds to a lower score.
 
-##Files Included:
+## Files Included:
  - api.py: Contains endpoints and game playing logic.
  - app.yaml: App configuration.
  - cron.yaml: Cronjob configuration.
@@ -159,7 +158,7 @@ remaining throughout all games played corresponds to a lower score.
     Will raise a NotFoundException if the game does not exist.
     Will raise a NotFoundException if no game history exists.
 
-##Models Included:
+## Models Included:
  - **User**
     - Stores unique user_name and (optional) email address.
 
